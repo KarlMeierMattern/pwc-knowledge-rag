@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         }),
         execute: async ({ similarQuestions }) => {
           const results = await Promise.all(
-            similarQuestions.map(
+            similarQuestions.map( 
               async (question) => await findRelevantContent(question)
             )
           );

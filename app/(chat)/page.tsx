@@ -91,7 +91,7 @@ export default function Chat() {
     console.log("Submitting form");
     e.preventDefault();
     if (input.trim() !== "") {
-      sendMessage({ text: input });
+      sendMessage({ text: input }); // triggers API call internally
       setInput("");
     }
   };
@@ -119,9 +119,7 @@ export default function Chat() {
           }}
           className={cn(
             "rounded-lg w-full ",
-            isExpanded
-              ? "bg-neutral-200 dark:bg-neutral-800"
-              : "bg-transparent",
+            isExpanded ? "bg-neutral-200 dark:bg-neutral-800" : "bg-transparent"
           )}
         >
           <div className="flex flex-col w-full justify-between gap-2">
@@ -203,8 +201,8 @@ const Loading = ({ tool }: { tool?: string }) => {
     tool === "getInformation"
       ? "Getting information"
       : tool === "addResource"
-        ? "Adding information"
-        : "Thinking";
+      ? "Adding information"
+      : "Thinking";
 
   return (
     <AnimatePresence mode="wait">
@@ -232,5 +230,5 @@ const MemoizedReactMarkdown: React.FC<Options> = React.memo(
   ReactMarkdown,
   (prevProps, nextProps) =>
     prevProps.children === nextProps.children &&
-    prevProps.className === nextProps.className,
+    prevProps.className === nextProps.className
 );
