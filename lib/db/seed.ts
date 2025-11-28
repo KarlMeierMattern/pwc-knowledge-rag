@@ -9,6 +9,8 @@ import { industryLeads } from "@/data/industry-leads";
 import { pwcEvolvedProfessional } from "@/data/pwc-evolved-professional";
 import { pwcEvolvedProfessionalGradeExpectations } from "@/data/pwc-evolved-professional-grade-expectations";
 import { ingestDocument } from "../actions/ingest";
+import { chargingTime } from "@/data/charging-time";
+import { chargeOutRates } from "@/data/charge-out-rates";
 
 async function seed() {
   console.log("=== Seeding Database ===\n");
@@ -89,12 +91,6 @@ async function seed() {
   }
 
   console.log("\n3. Seeding pwc-evolved-professional...");
-  console.log("DEBUG", {
-    type: typeof pwcEvolvedProfessional,
-    isArray: Array.isArray(pwcEvolvedProfessional),
-    length: pwcEvolvedProfessional?.length,
-    firstItem: pwcEvolvedProfessional?.[0],
-  });
 
   try {
     const result = await ingestDocument(
@@ -141,6 +137,86 @@ async function seed() {
         metadata: {
           title: "PwC Evolved Professional Grade Expectations",
           source: "pwc-evolved-professional-grade-expectations.ts",
+        },
+      },
+      { skipDuplicate: true }
+    );
+
+    if (result.success) {
+      console.log(`✅ ${result.message}`);
+      if ("created" in result) {
+        console.log(
+          `   Created: ${result.created}, Skipped: ${
+            result.skipped || 0
+          }, Failed: ${result.failed}`
+        );
+      } else {
+        console.log(`   Resource ID: ${result.resourceId}`);
+        if (result.skipped) {
+          console.log(`   ⚠️  Skipped (already exists)`);
+        }
+      }
+    } else {
+      console.error(`❌ Failed: ${result.message}`);
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    console.error(
+      "❌ Error seeding pwc-evolved-professional-grade-expectations:",
+      error
+    );
+    throw error;
+  }
+
+  console.log("\n5. Seeding charging-time...");
+  try {
+    const result = await ingestDocument(
+      {
+        type: "json",
+        data: chargingTime,
+        metadata: {
+          title: "PwC Charging time",
+          source: "charging-time.ts",
+        },
+      },
+      { skipDuplicate: true }
+    );
+
+    if (result.success) {
+      console.log(`✅ ${result.message}`);
+      if ("created" in result) {
+        console.log(
+          `   Created: ${result.created}, Skipped: ${
+            result.skipped || 0
+          }, Failed: ${result.failed}`
+        );
+      } else {
+        console.log(`   Resource ID: ${result.resourceId}`);
+        if (result.skipped) {
+          console.log(`   ⚠️  Skipped (already exists)`);
+        }
+      }
+    } else {
+      console.error(`❌ Failed: ${result.message}`);
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    console.error(
+      "❌ Error seeding pwc-evolved-professional-grade-expectations:",
+      error
+    );
+    throw error;
+  }
+
+  console.log("\n6. Seeding charge-out-rates...");
+  try {
+    const result = await ingestDocument(
+      {
+        type: "json",
+        data: chargeOutRates,
+        metadata: {
+          title: "PwC Charging time",
+          source: "charge-out-rates.ts",
         },
       },
       { skipDuplicate: true }
