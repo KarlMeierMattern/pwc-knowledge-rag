@@ -62,6 +62,8 @@ Sasol,EU&R,Johan Schutte`;
     source: "clients.csv",
   });
 
+  console.log("   First document:", documents[0]?.content.substring(0, 100));
+
   return documents;
 }
 
@@ -89,13 +91,7 @@ async function runExamples() {
   try {
     const docs = exampleNormalizePriorityClients();
     console.log(`✅ Created ${docs.length} documents`);
-    const remgro = docs.find((d) => d.content.includes("Remgro"));
-    if (remgro) {
-      console.log(
-        "   Remgro doc preview:",
-        remgro.content.substring(0, 150) + "...\n"
-      );
-    }
+    console.log("");
   } catch (error) {
     console.error("❌ Error:", error);
   }
@@ -105,15 +101,7 @@ async function runExamples() {
   try {
     const leadsDocs = exampleNormalizeIndustryLeads();
     console.log(`✅ Created ${leadsDocs.length} documents`);
-    const tertius = leadsDocs.find((d) =>
-      d.content.includes("Tertius van Dijk")
-    );
-    if (tertius) {
-      console.log(
-        "   Tertius doc preview:",
-        tertius.content.substring(0, 150) + "...\n"
-      );
-    }
+    console.log("");
   } catch (error) {
     console.error("❌ Error:", error);
   }
@@ -122,10 +110,7 @@ async function runExamples() {
   try {
     const csvDocs = exampleNormalizeCsv();
     console.log(`✅ Created ${csvDocs.length} documents`);
-    console.log(
-      "   First document:",
-      csvDocs[0]?.content.substring(0, 100) + "...\n"
-    );
+    console.log("");
   } catch (error) {
     console.error("❌ Error:", error);
   }
@@ -140,14 +125,6 @@ async function runExamples() {
   } catch (error) {
     console.error("❌ Error:", error);
   }
-
-  console.log("=== Scalability Test Summary ===");
-  console.log("✅ Generic implementation works with:");
-  console.log(
-    "   - priority-clients (5 fields: priority_account, industry, partner, priority, type)"
-  );
-  console.log("   - industry-leads (3 fields: partner, industry, subIndustry)");
-  console.log("   - Any JSON array of objects structure");
 }
 
 // Run if this file is executed directly
