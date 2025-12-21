@@ -48,7 +48,7 @@ async function testIngestion() {
         const stored = await db
           .select()
           .from(resources)
-          .where(eq(resources.id, result.resourceId))
+          .where(eq(resources.id as any, result.resourceId) as any as any)
           .limit(1);
 
         if (stored.length > 0) {
@@ -60,7 +60,7 @@ async function testIngestion() {
           const resourceEmbeddings = await db
             .select()
             .from(embeddings)
-            .where(eq(embeddings.resourceId, result.resourceId!));
+            .where(eq(embeddings.resourceId as any, result.resourceId!) as any);
 
           console.log(
             `   ✅ Created ${resourceEmbeddings.length} embedding chunks`

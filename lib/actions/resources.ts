@@ -10,6 +10,7 @@ import { generateEmbeddings } from "../ai/embedding";
 import { db } from "../db";
 import { embeddings as embeddingsTable } from "../db/schema/embeddings";
 import { and, eq, sql } from "drizzle-orm";
+import { z } from "zod";
 
 /**
  * Creates a resource from a normalized Document
@@ -28,11 +29,11 @@ export const createResourceFromDocument = async (
         .from(resources)
         .where(
           and(
-            eq(resources.content, document.content),
+            eq(resources.content as any, document.content),
             document.source
-              ? eq(resources.source, document.source)
-              : sql`${resources.source} IS NULL`
-          )
+              ? eq(resources.source as any, document.source)
+              : (sql`${resources.source} IS NULL` as any)
+          ) as any
         )
         .limit(1);
 
@@ -43,7 +44,7 @@ export const createResourceFromDocument = async (
         const existingEmbeddings = await db
           .select()
           .from(embeddingsTable)
-          .where(eq(embeddingsTable.resourceId, resourceId))
+          .where(eq(embeddingsTable.resourceId as any, resourceId) as any)
           .limit(1);
 
         if (existingEmbeddings.length === 0) {
@@ -147,16 +148,25 @@ export const createResourcesFromDocuments = async (
  * Legacy function - maintains backward compatibility
  * For new code, use createResourceFromDocument or createResourcesFromDocuments
  */
-export const createResource = async (input: { content: string }) => {
+export const createResource = async (input: NewResourceParams) => {
   try {
-    const { content } = insertResourceSchema.parse(input);
+    // Parse and validate input - title and source are optional
+    const validated = insertResourceSchema.parse(input);
+
+    if (!validated.content || validated.content.trim().length === 0) {
+      return "Error: Content cannot be empty.";
+    }
 
     const [resource] = await db
       .insert(resources)
-      .values({ content })
+      .values({
+        content: validated.content,
+        title: validated.title ?? null,
+        source: validated.source ?? null,
+      })
       .returning();
 
-    const embeddings = await generateEmbeddings(content);
+    const embeddings = await generateEmbeddings(validated.content);
     await db.insert(embeddingsTable).values(
       embeddings.map((embedding) => ({
         resourceId: resource.id,
@@ -165,6 +175,13 @@ export const createResource = async (input: { content: string }) => {
     );
     return "Resource successfully created and embedded.";
   } catch (error) {
+    // Handle Zod validation errors
+    if (error instanceof z.ZodError) {
+      const errors = error.errors
+        .map((e) => `${e.path.join(".")}: ${e.message}`)
+        .join(", ");
+      return `Validation error: ${errors}`;
+    }
     return error instanceof Error && error.message.length > 0
       ? error.message
       : "Error, please try again.";
